@@ -1,0 +1,38 @@
+services:
+  web:
+    build: ./nginx
+    container_name: nginx_server
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      - php-app
+    networks:
+      - app-network
+  php-app:
+    build: ./php
+    container_name: php_app
+    volumes:
+      - ./app:/var/www/html
+    networks:
+      - app-network
+      - db-network
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_DATABASE: user_data
+    volumes:
+      - db_data:/var/lib/mysql               
+      - ./initdb:/docker-entrypoint-initdb.d  
+    ports:
+      - "3306:3306"                           
+    networks:
+      - db-network
+volumes:
+  db_data:
+networks:
+  app-network:
+  db-network:
